@@ -15,3 +15,15 @@
 [maven仓库](https://mvnrepository.com/)
 
 [git画图](http://www.git-scm.com/download/)
+
+##脚本
+```sql
+CREATE CACHED TABLE "PUBLIC"."USER"(
+    "ID" int auto_increment primary key not null,
+    "ACCOUNT_ID" VARCHAR(100),
+    "NAME" VARCHAR(50),
+    "TOKEN" VARCHAR(36),
+    "GMT_CREATE" BIGINT,
+    "GMT_MODIFIED" BIGINT,
+)
+```
