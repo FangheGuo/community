@@ -8,51 +8,57 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
-import com.qiniu.util.StringMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.InputStream;
 
 @Service
-public class UcloudProvider {
+public class QiNiuProvider {
+    //...生成上传凭证，然后准备上传
     @Value("${qiniu.file.AccessKey}")
     private String accessKey;
     @Value("${qiniu.file.SecretKey}")
     private String secretKey;
+    @Value("${qiniu.file.bucket}")
+    private String bucket;
 
-    //构造一个带指定Region对象的配置类
-    Configuration cfg = new Configuration(Region.huabei());
-    //...其他参数参考类注释
-    UploadManager uploadManager = new UploadManager(cfg);
-    //...生成上传凭证，然后准备上传
-    String bucket = "guitartown";
+    private String path = "http://q7vvgn2n4.bkt.clouddn.com";
 
-    //如果是Windows情况下，格式是 D:\\qiniu\\test.png
-    String localFilePath = "/home/qiniu/test.png";
-    //默认不指定key的情况下，以文件内容的hash值作为文件名
 
-    Auth auth = Auth.create(accessKey, secretKey);
-    String upToken = auth.uploadToken(bucket);
+    /**
+     * 将图片上传到七牛云
+     */
+    public String uploadQNImg(InputStream file, String key) {
+        //构造一个带指定Region对象的配置类
+        Configuration cfg = new Configuration(Region.huabei());
+        //...其他参数参考类注释
+        UploadManager uploadManager = new UploadManager(cfg);
 
-    public String upload(InputStream fileStream, String key, String upToken, StringMap params, String mime){
         try {
-            Response response = uploadManager.put(fileStream, key, upToken,params,mime);
-            //解析上传成功的结果
-            DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            System.out.println(putRet.key);
-            System.out.println(putRet.hash);
-        } catch (QiniuException ex) {
-            Response r = ex.response;
-            System.err.println(r.toString());
+            Auth auth = Auth.create(accessKey, secretKey);
+            String upToken = auth.uploadToken(bucket);
             try {
-                System.err.println(r.bodyString());
-            } catch (QiniuException ex2) {
-                //ignore
-                return null;
+                Response response = uploadManager.put(file, key, upToken, null, null);
+                // 解析上传成功的结果
+                DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
+                long expireInSeconds = 3600;
+                //1小时，可以自定义链接过期时间
+                String finalUrl = auth.privateDownloadUrl(path + "/" + putRet.key, expireInSeconds);
+                return finalUrl;
+            } catch (QiniuException ex) {
+                Response r = ex.response;
+                System.err.println(r.toString());
+                try {
+                    System.err.println(r.bodyString());
+                } catch (QiniuException ex2) {
+                    //ignore
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return "";
     }
+
 
 }

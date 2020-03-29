@@ -1,2 +1,2 @@
 alter table COMMENT
-	add content varchar(1024);
+	add communt_count int default 0;

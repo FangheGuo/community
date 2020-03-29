@@ -1,2 +1,2 @@
-alter table POST alter column ID bigint default not null ;
-alter table USER alter column ID bigint default not null ;
+alter table POST alter column creator bigint default not null ;
+alter table COMMENT alter column commentator bigint default not null ;

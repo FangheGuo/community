@@ -24,11 +24,10 @@ public class GithubProvider {
             String[] split = string.split("&");
             String tokenstr = split[0];
             String token = tokenstr.split("=")[1];
-//            System.out.println(token);
+//            System.out.println("token是"+token+"string是"+string);
             return token;
-//            System.out.println(string);
-//            return string;
         } catch (Exception e) {
+            System.out.println("异常");
             e.printStackTrace();
         }
         return null;
@@ -37,15 +36,18 @@ public class GithubProvider {
     public GithubUser getuser(String accesstoken){
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("https://api.github.com/user?access_token=" + accesstoken)
+                .url("https://api.github.com/user")
+                .header("Authorization","token "+accesstoken)
                 .build();
         try{
             Response response = client.newCall(request).execute();
             String string =  response.body().string();
             //string的json对象自动转化成类对象
+            //fastjson自动把下划线标识映射到驼峰的属性
             GithubUser githubUser = JSON.parseObject(string, GithubUser.class);
             return githubUser;
         } catch (IOException e) {
+            System.out.println("获取用户异常");
         }
         return null;
     }
