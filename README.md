@@ -11,10 +11,15 @@
 - mkdir App
 - cd App/
 - git clone https://github.com/FangheGuo/community.git
-- cd community
+- cd community/
 - yum install maven
 - mvn -v
 - mvn clean compile package
+- cp  src/main/resources/application.properties src/main/resources/application-production.properties
+- vim src/main/resources/application-production.properties
+- java -jar -Dspring.profiles.active=production target/community-0.0.1-SNAPSHOT.jar
+
+
 
 ## 资料
 [spring文档](https://spring.io/guides)
